@@ -3,7 +3,6 @@ import beepy
 import datetime
 import glob
 import logging
-# import nmcli
 import os
 import os.path
 import requests
@@ -36,6 +35,7 @@ def main_nowifi():
 
 
 def main():
+    import nmcli
 
     try:
 
@@ -80,7 +80,7 @@ def main():
                     logging.error(f"There's a problem processing '{ez_ssid}': {e}")
 
             logging.debug("Sleeping")
-            time.sleep(10)  # poll every 10 seconds for active cards
+            time.sleep(600)  # poll every 5 mins for active cards
                 
 
     #execute this code if CTRL + C is used to kill python script
