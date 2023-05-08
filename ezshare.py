@@ -3,6 +3,7 @@ import beepy
 import datetime
 import glob
 import logging
+import nmcli
 import os
 import os.path
 import requests
@@ -35,7 +36,6 @@ def main_nowifi():
 
 
 def main():
-    import nmcli
 
     try:
 
@@ -199,6 +199,9 @@ def download(directory, filename):
         directory_local = directory.replace("%5C", "/")
         os.makedirs(f"{_DESTINATION}/{directory_local}", exist_ok=True)
         filepath = f"{_DESTINATION}/{directory_local}/{filename}"
+
+        if os.path.exists(filepath):
+            return True
 
         logging.info(f"Going to download {url}")
         sleep = 1
