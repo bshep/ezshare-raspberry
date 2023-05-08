@@ -32,7 +32,7 @@ def main_nowifi():
     filenames = get_list_of_filenames_on_card()
     for (directory, filename) in filenames:
         print(directory,filename)
-        download("", directory, filename)
+        download( directory, filename)
 
 
 def main():
@@ -174,7 +174,7 @@ def get_list_of_filenames_on_card_dir(dir):
                 list_of_filenames = newlist
             if href.find("download") >= 0:
                 filename = a_tag.text[1:]
-                directory = dir[2:]
+                directory = dir[5:]
                 logging.debug(f"File on card: {filename[1:]}")
                 list_of_filenames.append((directory, filename))
     except Exception as e:
@@ -187,8 +187,12 @@ def get_list_of_filenames_on_card_dir(dir):
 
 
 def download(directory, filename):
-    domain = "http://ezshare.card"
-    url = domain + "/download?file=" + directory + "%5C" + filename
+    logging.info(f"Going to download dir:{directory} file: {filename}")
+    domain = "http://ezshare.card/download?file="
+    if directory != "":
+        url = domain + directory + "%5C" + filename
+    else:
+        url = domain + filename
 
     try:
         # download to {_TEMP}
