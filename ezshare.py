@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import beepy
 import datetime
 import glob
 import logging
@@ -22,7 +21,7 @@ _PASSWORD = "88888888"
 
 
 #temporary workspace while downloaden/uploading files
-_DESTINATION = "./sdcard-sync"
+_DESTINATION = "/home/pi/sdcard-sync"
 os.makedirs(_DESTINATION, exist_ok=True)
 
 
@@ -48,8 +47,6 @@ def main():
 
             if ez_ssid:
 
-                beepy.beep(sound="success")
-
                 try:
 
                     #import pdb; pdb.set_trace()
@@ -62,13 +59,7 @@ def main():
                     for (directory, filename) in filenames:
                             download_result = download(directory, filename)
                             
-                            if download_result:
-                                beepy.beep(sound="ping")
-                            else:
-                                beepy.beep(sound="error")
-
                     connect_to_home_network(home_network)
-                    beepy.beep(sound="ready")
 
                     logging.debug("Sleeping")
                     time.sleep(10)  # wait an extra 10 seconds before polling again
@@ -236,5 +227,5 @@ def connect_to_home_network(name):
         # and that seems to cause problems
 
 if __name__ == "__main__":
-    # main()
-    main_nowifi()
+    main()
+    # main_nowifi()
