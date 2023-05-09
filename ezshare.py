@@ -66,9 +66,6 @@ def main_oneshot():
                     connect_to_home_network(home_network)
                 logging.error(f"There's a problem processing '{ez_ssid}': {e}")
 
-        logging.debug("Sleeping")
-        time.sleep(600)  # poll every 5 mins for active cards
-                
 
     #execute this code if CTRL + C is used to kill python script
     except KeyboardInterrupt:
