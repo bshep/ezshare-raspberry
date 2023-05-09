@@ -33,6 +33,51 @@ def main_nowifi():
         print(directory,filename)
         download( directory, filename)
 
+def main_oneshot():
+
+    try:
+
+        home_network = find_active_connection()
+
+        #endless polling loop
+        ez_ssid = find_first_active_ezshare_ssid()
+
+        if ez_ssid:
+            try:
+                home_network = find_active_connection()
+                connect_to_ezshare_ssid(ez_ssid)
+                filenames = get_list_of_filenames_on_card()
+                
+                for (directory, filename) in filenames:
+                        download_result = download(directory, filename)
+                        
+                connect_to_home_network(home_network)
+
+                logging.debug("Sleeping")
+
+            except Exception as e:
+
+                if home_network:
+                    connect_to_home_network(home_network)
+                logging.error(f"There's a problem processing '{ez_ssid}': {e}")
+
+        logging.debug("Sleeping")
+        time.sleep(600)  # poll every 5 mins for active cards
+                
+
+    #execute this code if CTRL + C is used to kill python script
+    except KeyboardInterrupt:
+
+        if home_network:
+            connect_to_home_network(home_network)
+        print("Bye!")
+
+    except Exception as e:
+
+        if home_network:
+            connect_to_home_network(home_network)
+        logging.error(traceback.format_exc())
+        # Logs the error appropriately.
 
 def main():
 
@@ -227,5 +272,6 @@ def connect_to_home_network(name):
         # and that seems to cause problems
 
 if __name__ == "__main__":
-    main()
+    # main()
+    main_oneshot()
     # main_nowifi()
