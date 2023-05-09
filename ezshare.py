@@ -58,8 +58,6 @@ def main_oneshot():
                         
                 connect_to_home_network(home_network)
 
-                logging.debug("Sleeping")
-
             except Exception as e:
 
                 if home_network:
