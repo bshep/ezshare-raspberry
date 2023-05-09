@@ -1,8 +1,9 @@
 #!/usr/bin/python3
+import argparse
 import datetime
 import glob
 import logging
-import nmcli
+# import nmcli
 import os
 import os.path
 import requests
@@ -18,22 +19,26 @@ from bs4 import BeautifulSoup
 #identifies your camera; this string will be replicated in the album names
 #all SD cards should be configured with the same password:
 _PASSWORD = "88888888"
+_DESTINATION = "/home/pi/sdcard-sync"
 
 
 #temporary workspace while downloaden/uploading files
-_DESTINATION = "/home/pi/sdcard-sync"
-os.makedirs(_DESTINATION, exist_ok=True)
+
+def setupdirs():
+    os.makedirs(_DESTINATION, exist_ok=True)
 
 
 logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d %(funcName)s] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', level=logging.DEBUG)
 
 def main_nowifi():
+    setupdirs()
     filenames = get_list_of_filenames_on_card()
     for (directory, filename) in filenames:
         print(directory,filename)
         download( directory, filename)
 
 def main_oneshot():
+    setupdirs()
 
     try:
 
@@ -80,6 +85,7 @@ def main_oneshot():
         # Logs the error appropriately.
 
 def main():
+    setupdirs()
 
     try:
 
@@ -272,6 +278,22 @@ def connect_to_home_network(name):
         # and that seems to cause problems
 
 if __name__ == "__main__":
-    # main()
-    main_oneshot()
-    # main_nowifi()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--mode", help="specify the mode of operation", choices=['once','nowifi','poll'], required=True)
+    parser.add_argument("-d", "--dest", help="destination directory")
+    args = parser.parse_args()
+
+    if args.dest:
+        _DESTINATION = args.dest
+
+    print(args.mode)
+    if args.mode == 'once':
+        import nmcli
+        main_oneshot()
+
+    if args.mode == 'poll':
+        main()
+    
+    if args.mode == 'nowifi':
+        import nmcli
+        main_nowifi()
