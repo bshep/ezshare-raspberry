@@ -19,7 +19,8 @@ from bs4 import BeautifulSoup
 #identifies your camera; this string will be replicated in the album names
 #all SD cards should be configured with the same password:
 _PASSWORD = "88888888"
-_DESTINATION = "/home/pi/sdcard-sync"
+_DESTINATION_BASE = "/home/pi/sdcard-sync"
+_DESTINATION = _DESTINATION_BASE
 
 
 #temporary workspace while downloaden/uploading files
@@ -44,26 +45,33 @@ def main_oneshot():
 
         home_network = find_active_connection()
 
-        #endless polling loop
-        ez_ssid = find_first_active_ezshare_ssid()
 
-        if ez_ssid:
-            try:
-                home_network = find_active_connection()
-                connect_to_ezshare_ssid(ez_ssid)
-                filenames = get_list_of_filenames_on_card()
-                
-                for (directory, filename) in filenames:
-                        download_result = download(directory, filename)
-                        
-                connect_to_home_network(home_network)
+        ssid_list = list_ezshare_ssids()
+        # ez_ssid = find_first_active_ezshare_ssid()
 
-            except Exception as e:
+        for ez_ssid in ssid_list:
+            if ez_ssid:
+                try:
+                    # home_network = find_active_connection()
+                    dest_suffix = get_name_from_SSID(ez_ssid)
+                    _DESTINATION = _DESTINATION_BASE + "/" + dest_suffix
 
-                if home_network:
-                    connect_to_home_network(home_network)
-                logging.error(f"There's a problem processing '{ez_ssid}': {e}")
+                    print(f"Connecting to SSID: {ez_ssid}")
+                    print(f"Downloading to: {_DESTINATION}")
+                    connect_to_ezshare_ssid(ez_ssid)
+                    filenames = get_list_of_filenames_on_card()
+                    
+                    for (directory, filename) in filenames:
+                            download_result = download(directory, filename)
+                            
 
+                except Exception as e:
+
+                    if home_network:
+                        connect_to_home_network(home_network)
+                    logging.error(f"There's a problem processing '{ez_ssid}': {e}")
+        
+        connect_to_home_network(home_network)
 
     #execute this code if CTRL + C is used to kill python script
     except KeyboardInterrupt:
@@ -88,36 +96,35 @@ def main():
 
         #endless polling loop
         while True: 
+            ssid_list = list_ezshare_ssids()
+            # ez_ssid = find_first_active_ezshare_ssid()
 
-            ez_ssid = find_first_active_ezshare_ssid()
+            for ez_ssid in ssid_list:
+                if ez_ssid:
 
-            if ez_ssid:
+                    try:
+                        home_network = find_active_connection()
+                        connect_to_ezshare_ssid(ez_ssid)
+                        filenames = get_list_of_filenames_on_card()
+                        
+                        for (directory, filename) in filenames:
+                                download_result = download(directory, filename)
+                                
 
-                try:
+                        logging.debug("Sleeping")
+                        time.sleep(10)  # wait an extra 10 seconds before polling again
 
-                    #import pdb; pdb.set_trace()
+                    except Exception as e:
 
-                            
-                    home_network = find_active_connection()
-                    connect_to_ezshare_ssid(ez_ssid)
-                    filenames = get_list_of_filenames_on_card()
-                    
-                    for (directory, filename) in filenames:
-                            download_result = download(directory, filename)
-                            
-                    connect_to_home_network(home_network)
+                        if home_network:
+                            connect_to_home_network(home_network)
+                        logging.error(f"There's a problem processing '{ez_ssid}': {e}")
 
-                    logging.debug("Sleeping")
-                    time.sleep(10)  # wait an extra 10 seconds before polling again
-
-                except Exception as e:
-
-                    if home_network:
-                        connect_to_home_network(home_network)
-                    logging.error(f"There's a problem processing '{ez_ssid}': {e}")
+            connect_to_home_network(home_network)
 
             logging.debug("Sleeping")
             time.sleep(600)  # poll every 5 mins for active cards
+
                 
 
     #execute this code if CTRL + C is used to kill python script
@@ -144,14 +151,6 @@ def find_active_connection():
     else:
         logging.error("There seems to be no active network connection!")
 
-
-def find_first_active_ezshare_ssid():
-
-    devices = nmcli.device.wifi()
-    for device in devices:
-        if "ez Share" in device.ssid:
-            logging.info(f"'{device.ssid}' is online!")
-            return device.ssid
         
 def list_ezshare_ssids():
     ssid_list = []
@@ -162,6 +161,9 @@ def list_ezshare_ssids():
             ssid_list.append(device.ssid)
     
     return ssid_list
+
+def get_name_from_SSID(ssid):
+    return ssid.split("ez Share", 1)[1].lstrip()
 
 
 def connect_to_ezshare_ssid(ssid):
@@ -290,7 +292,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.dest:
-        _DESTINATION = args.dest
+        _DESTINATION_BASE = args.dest
+
+    if args.mode == 'poll':
+        main()
+
+    if args.mode == 'nowifi':
+        main_nowifi()
 
     if args.list:
         import nmcli
@@ -300,10 +308,4 @@ if __name__ == "__main__":
     if args.mode == 'once':
         import nmcli
         main_oneshot()
-
-    if args.mode == 'poll':
-        main()
     
-    if args.mode == 'nowifi':
-        import nmcli
-        main_nowifi()
