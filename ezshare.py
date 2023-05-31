@@ -39,6 +39,7 @@ def main_nowifi():
         download( directory, filename)
 
 def main_oneshot():
+    global _DESTINATION
     setupdirs()
 
     try:
