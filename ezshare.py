@@ -286,7 +286,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--mode", help="specify the mode of operation", choices=['once','nowifi','poll'], required=True)
     parser.add_argument("-d", "--dest", help="destination directory")
-    parser.add_argument("-l", "--list", help="list SSIDs only", nargs=0)
+    parser.add_argument("-l", "--list", help="list SSIDs only")
     args = parser.parse_args()
 
     if args.dest:
