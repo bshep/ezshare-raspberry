@@ -55,6 +55,7 @@ def main_oneshot():
                     # home_network = find_active_connection()
                     dest_suffix = get_name_from_SSID(ez_ssid)
                     _DESTINATION = _DESTINATION_BASE + "/" + dest_suffix
+                    setupdirs()
 
                     print(f"Connecting to SSID: {ez_ssid}")
                     print(f"Downloading to: {_DESTINATION}")
@@ -103,6 +104,12 @@ def main():
                 if ez_ssid:
 
                     try:
+                        dest_suffix = get_name_from_SSID(ez_ssid)
+                        _DESTINATION = _DESTINATION_BASE + "/" + dest_suffix
+                        setupdirs()
+
+                        print(f"Connecting to SSID: {ez_ssid}")
+                        print(f"Downloading to: {_DESTINATION}")
                         home_network = find_active_connection()
                         connect_to_ezshare_ssid(ez_ssid)
                         filenames = get_list_of_filenames_on_card()
