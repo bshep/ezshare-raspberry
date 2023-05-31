@@ -260,6 +260,7 @@ def download(directory, filename):
             return True
 
         logging.info(f"Going to download {url}")
+        logging.info(f" - Destination: {filepath}")
         sleep = 1
         for attempt in range(10):
             try:
