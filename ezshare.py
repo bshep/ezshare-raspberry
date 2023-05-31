@@ -152,6 +152,16 @@ def find_first_active_ezshare_ssid():
         if "ez Share" in device.ssid:
             logging.info(f"'{device.ssid}' is online!")
             return device.ssid
+        
+def list_ezshare_ssids():
+    ssid_list = []
+
+    devices = nmcli.device.wifi()
+    for device in devices:
+        if "ez Share" in device.ssid:
+            ssid_list.append(device.ssid)
+    
+    return ssid_list
 
 
 def connect_to_ezshare_ssid(ssid):
@@ -276,12 +286,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--mode", help="specify the mode of operation", choices=['once','nowifi','poll'], required=True)
     parser.add_argument("-d", "--dest", help="destination directory")
+    parser.add_argument("-l", "--list", help="list SSIDs only"))
     args = parser.parse_args()
 
     if args.dest:
         _DESTINATION = args.dest
 
-    print(args.mode)
+    if args.list:
+        print(list_ezshare_ssids())
+        exit(0)
+
     if args.mode == 'once':
         import nmcli
         main_oneshot()
