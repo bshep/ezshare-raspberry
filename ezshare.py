@@ -256,11 +256,12 @@ def download(directory, filename):
         os.makedirs(f"{_DESTINATION}/{directory_local}", exist_ok=True)
         filepath = f"{_DESTINATION}/{directory_local}/{filename}"
 
-        if os.path.exists(filepath):
-            return True
-
         logging.info(f"Going to download {url}")
         logging.info(f" - Destination: {filepath}")
+        if os.path.exists(filepath):
+            logging.info(" - Already downloaded - skip")
+            return True
+
         sleep = 1
         for attempt in range(10):
             try:
